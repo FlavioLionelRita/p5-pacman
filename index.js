@@ -1,19 +1,53 @@
-let http = require('http');
-let fs = require('fs');
+// const fs = require('fs');
+// const path = require('path');
+
+const express = require("express");
+const bodyParser = require("body-parser");
+const router = express.Router();
+const app = express();
+const Helper = require("./lib/helper");
+const Service = require("./lib/service");
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use("/", router);
  
-let handleRequest = (request, response) => {
-    response.writeHead(200, {
-        'Content-Type': 'text/html'
-    });
-    fs.readFile('.'+request.url, null, function (error, data) {
-        if (error) {
-            response.writeHead(404);
-            console.log(request.url+" not exists!!!");
-        } else {
-            response.write(data);
-        }
-        response.end();
-    });
-};
- 
-http.createServer(handleRequest).listen(8000);
+app.use(express.static('public'));
+
+
+// function load(solution){
+//     app.get('/level', function (req, res) {
+//         let data = solution.service.config(1,2);   
+//         res.send(data);
+//     });
+// }
+
+
+(async () => { 
+    try {
+        let solution = {};        
+        solution.config = Helper.loadConfiguration(__dirname+'/.env');
+        solution.service = new Service(solution);
+        
+        app.get('/age/:age/level/:level/config', function (req, res) {
+            let data = solution.service.config(req.params.age,req.params.level);   
+            res.send(data);
+        });
+        
+
+        app.listen(solution.config.APP_PORT);
+        console.log('Server running at: '+solution.config.APP_HOST+':'+solution.config.APP_PORT); 
+        process.exitCode = 0;
+        return 0;
+    }
+    catch (error) {     
+        console.error(error);  
+        process.exitCode = -1;
+        return -1;
+    }    
+})();
+
+
+
+
