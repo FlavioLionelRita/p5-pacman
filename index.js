@@ -11,17 +11,8 @@ const Service = require("./lib/service");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use("/", router);
- 
+app.use("/", router); 
 app.use(express.static('public'));
-
-
-// function load(solution){
-//     app.get('/level', function (req, res) {
-//         let data = solution.service.config(1,2);   
-//         res.send(data);
-//     });
-// }
 
 
 (async () => { 
