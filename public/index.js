@@ -17,25 +17,26 @@ async function draw() {
     background(0);
     if(game)game.draw();   
 }
+
+
 class Game
 {
   constructor(config){
     this.config = config;
     this.status = 'Playing';
-    let rows =   config.spec.screen.map.split(';');
+    let rows =   config.spec.screen.map.split('\n');
     this.rows = rows.length;
-    this.cols = rows[0].trim().replace('^','').length;
+    this.cols = rows[0].length;
     this.cell_height = Math.floor(HIGH / this.rows);
     this.cell_width = Math.floor(WIDTH / this.cols);
     this.map = new Array(rows.length);
     this.ghosts = []; 
     for(let i=0;i<rows.length;i++){
-      let row = rows[i].trim().replace('^','');
+      let row = rows[i];
       this.map[i]= new Array(row.length);
       for(let j=0;j<row.length;j++){
         let character  = row.charAt(j);
-        if(character=='>'){ 
-
+        if(character=='>'){
           this.mouth = new Mouth(this,this.cell_width*j,this.cell_height*i); 
           character=' ';  
         }else if(character=='A'){

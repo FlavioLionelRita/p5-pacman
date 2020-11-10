@@ -22,7 +22,7 @@ app.use(express.static('public'));
         solution.service = new Service(solution);
         
         app.get('/age/:age/level/:level/config', function (req, res) {
-            let data = solution.service.config(req.params.age,req.params.level);   
+            let data = solution.service.config(Number(req.params.age),Number(req.params.level));   
             res.send(data);
         });
         
