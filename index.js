@@ -1,34 +1,29 @@
-// const fs = require('fs');
-// const path = require('path');
-
+const path = require('path');
 const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const app = express();
-const Helper = require("./lib/helper");
-const Service = require("./lib/service");
-
+const ConfigExtents = require('config-extends');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use("/", router); 
 app.use(express.static('public'));
 
-
 (async () => { 
-    try {
-        let solution = {};        
-        solution.config = Helper.loadConfiguration(__dirname+'/.env');
-        solution.service = new Service(solution);
-        
+    try {        
+        let config = await ConfigExtents.apply(path.join(__dirname,'config'));
+       
         app.get('/age/:age/level/:level/config', function (req, res) {
-            let data = solution.service.config(Number(req.params.age),Number(req.params.level));   
+            let age   = req.params.age!='null'?parseInt(req.params.age):4;
+            let level = req.params.level!='null'?parseInt(req.params.level):1;
+            let data = config.versions.find(p=> p.age.from <= age && p.age.to >= age && p.level ==level);
+            //console.log(data);
             res.send(data);
-        });
-        
+        });        
 
-        app.listen(solution.config.APP_PORT);
-        console.log('Server running at: '+solution.config.APP_HOST+':'+solution.config.APP_PORT); 
+        app.listen(process.env.APP_PORT);
+        console.log('Server running at: '+process.env.APP_HOST+':'+process.env.APP_PORT); 
         process.exitCode = 0;
         return 0;
     }
@@ -38,7 +33,3 @@ app.use(express.static('public'));
         return -1;
     }    
 })();
-
-
-
-

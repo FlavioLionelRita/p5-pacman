@@ -4,11 +4,11 @@ let game;
 async function setup() {  
   let queryString = window.location.search;
   let urlParams= new URLSearchParams(queryString);
-  let age =  urlParams.has('age')?urlParams.get('age'):15;
-  let level = urlParams.has('level')?urlParams.get('level'):1;
+  let age =  urlParams.get('age');
+  let level = urlParams.get('level');
   let config = await $.ajax({url: '/age/'+age+'/level/'+level+'/config',type: 'GET'});
-  WIDTH = config.spec.screen.width;
-  HIGH = config.spec.screen.high;
+  WIDTH = config.screen.width;
+  HIGH = config.screen.high;
   const canvas = createCanvas(WIDTH, HIGH);
   canvas.parent('#canvasHolder');
   game = new Game(config);
@@ -24,7 +24,7 @@ class Game
   constructor(config){
     this.config = config;
     this.status = 'Playing';
-    let rows =   config.spec.screen.map.split('\n');
+    let rows =   config.screen.map.split('\n');
     this.rows = rows.length;
     this.cols = rows[0].length;
     this.cell_height = Math.floor(HIGH / this.rows);
@@ -121,7 +121,7 @@ class Participant
 class Mouth extends Participant
 {
     constructor(game,init_x,init_y){  
-      super(game,init_x,init_y,'assets/images/cat.png',game.config.spec.mouth.speed)
+      super(game,init_x,init_y,'assets/images/cat.png',game.config.mouth.speed)
     } 
     updatepPosition(){
       let _x=0;
@@ -151,7 +151,7 @@ class Mouth extends Participant
 class Ghost extends Participant
 {
   constructor(game,init_x,init_y){     
-    let speed = Math.floor(Math.random()*(game.config.spec.ghost.speedTo-game.config.spec.ghost.speedFrom))+game.config.spec.ghost.speedFrom; 
+    let speed = Math.floor(Math.random()*(game.config.ghost.speedTo-game.config.ghost.speedFrom))+game.config.ghost.speedFrom; 
     super(game,init_x,init_y,'assets/images/dog.png',speed);
     this.directions = ['LEFT','RIGHT','UP','DOWN'];  
     this.current_direction = this.randomDirection();
