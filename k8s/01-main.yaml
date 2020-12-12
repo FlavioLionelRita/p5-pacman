@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: games
+  labels:
+    app.kubernetes.io/name: games
+    app.kubernetes.io/instance: games
+    app.kubernetes.io/version: '20201212'
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+  annotations:
+    downscaler/uptime: 'Mon-Fri 06:32-24:00 UTC,Tue-Sat 00:00-01:00 UTC'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: games
+  namespace: games
+  labels:
+    app.kubernetes.io/name: games
+    app.kubernetes.io/instance: games
+    app.kubernetes.io/version: '20201212'
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+# imagePullSecrets:
+#   - name: registry.gitlab.com-secret
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+  namespace: games
+  labels:
+    app.kubernetes.io/name: compute-resources
+    app.kubernetes.io/instance: compute-resources
+    app.kubernetes.io/version: '20201212'
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+spec:
+  hard:
+    requests.cpu: '4'
+    requests.memory: 8Gi
+    limits.cpu: '8'
+    limits.memory: 16Gi
+    requests.nvidia.com/gpu: '4'
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: object-counts
+  namespace: games
+  labels:
+    app.kubernetes.io/name: object-counts
+    app.kubernetes.io/instance: object-counts
+    app.kubernetes.io/version: '20201212'
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+spec:
+  hard:
+    configmaps: '40'
+    secrets: '40'
+    persistentvolumeclaims: '8'
+    pods: '40'
+    services: '20'
+    services.loadbalancers: '1'
+
+
+
+# ---
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   name: registry.gitlab.com-secret
+#   namespace: games
+#   labels:
+#     app.kubernetes.io/name: registry.gitlab.com-secret
+#     app.kubernetes.io/instance: registry.gitlab.com-secret
+#     app.kubernetes.io/version: '20201212'
+#     # app.kubernetes.io/managed-by: blazedpath
+#     enviroment: dev
+# type: kubernetes.io/dockerconfigjson
+# data:
+#   .dockerconfigjson: >-
+#     eyJhdXRocyI6eyJkb2NrZXIuYmxhemVkcGF0aC5jb20iOnsidXNlcm5hbWUiOiJtc2RlcGxveWVyIiwicGFzc3dvcmQiOiJtc2RlcGxveWVyIiwiYXV0aCI6ImJYTmtaWEJzYjNsbGNqcHRjMlJsY0d4dmVXVnkifX19
