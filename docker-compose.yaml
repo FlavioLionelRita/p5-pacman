@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  pacman:
+    image: 'registry.gitlab.com/flaviolrita/p5-pacman:1.0.0'
+    ports:
+      - '8000:8000'
+    environment:
+      - APP_HOST=http://localhost
+      - APP_PORT=8000

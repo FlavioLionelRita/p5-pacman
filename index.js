@@ -11,9 +11,13 @@ app.use("/", router);
 app.use(express.static('public'));
 
 (async () => { 
-    try {        
+    try {
+        let host =   process.env.APP_HOST || 'http://localhost';
+        let port = process.env.APP_PORT || '8000';
         let config = await ConfigExtents.apply(path.join(__dirname,'config'));
-       
+        app.get('/health', function (req, res) {
+            res.send(new Date().toTimeString());
+        });
         app.get('/age/:age/level/:level/config', function (req, res) {
             let age   = req.params.age!='null'?parseInt(req.params.age):4;
             let level = req.params.level!='null'?parseInt(req.params.level):1;
@@ -22,8 +26,8 @@ app.use(express.static('public'));
             res.send(data);
         });        
 
-        app.listen(process.env.APP_PORT);
-        console.log('Server running at: '+process.env.APP_HOST+':'+process.env.APP_PORT); 
+        app.listen(port);
+        console.log('Server running at: '+host+':'+port); 
         process.exitCode = 0;
         return 0;
     }

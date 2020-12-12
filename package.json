@@ -1,8 +1,11 @@
 {
   "name": "p5-pacman",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "exercise of pacman ",
   "main": "index.js",
+  "scripts": {
+    "start": "node index"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FlavioLionelRita/p5-pacman.git"
