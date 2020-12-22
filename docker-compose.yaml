@@ -2,7 +2,7 @@ version: '3'
 
 services:
   pacman:
-    image: 'registry.gitlab.com/flaviolrita/p5-pacman:1.0.0'
+    image: 'registry.gitlab.com/flaviolrita/p5-pacman:0.0.1'
     ports:
       - '8000:8000'
     environment:

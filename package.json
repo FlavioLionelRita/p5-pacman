@@ -24,7 +24,7 @@
   "homepage": "https://github.com/FlavioLionelRita/p5-pacman#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "config-extends": "0.0.6",
+    "config-extends": "^1.0.2",
     "express": "^4.17.1"
   }
 }
