@@ -1,0 +1,17 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: pacman-config
+  namespace: games
+  labels:
+    app.kubernetes.io/name: pacman-config
+    app.kubernetes.io/instance: pacman-config
+    app.kubernetes.io/version: '20201212'
+    app.kubernetes.io/component: pacman
+    app.kubernetes.io/part-of: games
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+    tier: backend
+data:
+  APP_HOST: http://localhost
+  APP_PORT: '8000'

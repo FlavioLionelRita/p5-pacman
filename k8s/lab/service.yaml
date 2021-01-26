@@ -1,0 +1,24 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: pacman
+  namespace: games
+  labels:
+    app.kubernetes.io/name: pacman
+    app.kubernetes.io/instance: pacman
+    app.kubernetes.io/version: '20201212'
+    app.kubernetes.io/component: pacman
+    app.kubernetes.io/part-of: games
+    # app.kubernetes.io/managed-by: blazedpath
+    enviroment: dev
+    tier: frontend
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: pacman
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30008
+      protocol: TCP
+      name: pacman
