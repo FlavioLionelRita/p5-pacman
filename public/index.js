@@ -7,17 +7,16 @@ async function setup() {
   let age =  urlParams.get('age');
   let level = urlParams.get('level');
   let config = await $.ajax({url: '/age/'+age+'/level/'+level+'/config',type: 'GET'});
-  WIDTH = config.screen.width;
-  HIGH = config.screen.high;
+  WIDTH =document.documentElement.clientWidth-20;  
+  HIGH =  document.documentElement.clientHeight-20; 
   const canvas = createCanvas(WIDTH, HIGH);
   canvas.parent('#canvasHolder');
   game = new Game(config);
 }
 async function draw() {
-    background(0);
+    background(50);
     if(game)game.draw();   
 }
-
 
 class Game
 {
@@ -47,8 +46,13 @@ class Game
         this.map[i][j] = character;
       }
     }
+    this.control = new Control(WIDTH-200,HIGH-200);
+
+    this.wallsprites = loadImage('assets/walls.png')
+
+    //596 x 992
   }
-  draw(){    
+  draw(){ 
     this.drawMap();
     this.mouth.draw();
     for(let i=0;i<this.ghosts.length;i++){
@@ -65,9 +69,7 @@ class Game
   }
   drawMap(){       
       const drawWall = function(x,y){
-        fill('blue');
-        stroke('blue');
-        rect(x, y, this.cell_width, this.cell_height);
+        image(this.wallsprites, x, y, this.cell_width, this.cell_height,(64*7)+16,0,64,64);
       }
       const drawPacDots= function(x,y){
             stroke('yellow');
@@ -97,6 +99,42 @@ class Game
       if(seeds==0)this.status = 'Winer!!!'      
   }
 }
+
+
+class Button {  
+  constructor(x, y, img) {
+    this.x = x;
+    this.y = y;
+    
+    this.button = createImg(img);
+    
+    this.button.position(x, y);
+  } 
+  over() {
+     return mouseX > this.x && mouseX < this.x + this.button.width 
+         && mouseY > this.y && mouseY < this.y + this.button.height;
+  }
+}
+
+
+class Control
+{
+    constructor(x,y){
+      let w = 64;
+      let h = 64;
+      
+      this.btLeft = new Button(x,y+h,'assets/arrow-left.png');
+      this.btRight = new Button(x+(w*2),y+h,'assets/arrow-right.png');
+      this.btUp = new Button(x+w,y,'assets/arrow-up.png');
+      this.btDown = new Button(x+w,y+(h*2),'assets/arrow-down.png');
+      
+      
+    }
+    left(){ return keyIsDown(LEFT_ARROW) || this.btLeft.over(); }
+    right(){ return keyIsDown(RIGHT_ARROW) || this.btRight.over(); }
+    up(){ return keyIsDown(UP_ARROW) || this.btUp.over(); }
+    down(){ return keyIsDown(DOWN_ARROW) || this.btDown.over(); }
+}
 class Participant
 {
   constructor(game,init_x,init_y,img,speed){  
@@ -121,22 +159,25 @@ class Participant
 class Mouth extends Participant
 {
     constructor(game,init_x,init_y){  
-      super(game,init_x,init_y,'assets/images/cat.png',game.config.mouth.speed)
+      super(game,init_x,init_y,'assets/cat.png',game.config.mouth.speed)
     } 
     updatepPosition(){
       let _x=0;
       let _y=0;
-      if(keyIsDown(LEFT_ARROW))_x-=this.speed;
-      else if(keyIsDown(RIGHT_ARROW))_x+=this.speed;
-      else if(keyIsDown(UP_ARROW))_y-=this.speed;
-      else if(keyIsDown(DOWN_ARROW))_y+=this.speed;       
+      if(this.game.control.left())_x-=this.speed;
+      else if(this.game.control.right())_x+=this.speed;
+      else if(this.game.control.up())_y-=this.speed;
+      else if(this.game.control.down())_y+=this.speed; 
       let x = parseInt((this.x + _x)/this.width);
+      let x2 = parseInt((this.x + (this.width-7) + _x)/this.width);
       let y = parseInt((this.y + _y)/this.height);
+      let y2 = parseInt((this.y + (this.height-7) + _y)/this.height);
+      //let y = Math.round((this.y + _y)/this.height);
       if(this.x<0)this.x= WIDTH-1;
       else if(this.x>WIDTH)this.x= 1;
       else if(this.y<0)this.y= HIGH-1;
       else if(this.y>HIGH)this.y= 1;
-      else if(this.game.map[y][x]!='#'){
+      else if(this.game.map[y][x]!='#' && this.game.map[y2][x]!='#' && this.game.map[y][x2]!='#' && this.game.map[y2][x2]!='#' ){
         this.x += _x;
         this.y += _y;
         if(this.game.map[y][x]=='.'){
@@ -152,7 +193,7 @@ class Ghost extends Participant
 {
   constructor(game,init_x,init_y){     
     let speed = Math.floor(Math.random()*(game.config.ghost.speedTo-game.config.ghost.speedFrom))+game.config.ghost.speedFrom; 
-    super(game,init_x,init_y,'assets/images/dog.png',speed);
+    super(game,init_x,init_y,'assets/dog.png',speed);
     this.directions = ['LEFT','RIGHT','UP','DOWN'];  
     this.current_direction = this.randomDirection();
     this.mode = 'CURRENT';
