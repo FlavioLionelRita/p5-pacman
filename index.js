@@ -19,7 +19,7 @@ app.use(express.static('public'));
             res.send(new Date().toTimeString());
         });
         app.get('/age/:age/level/:level/config', function (req, res) {
-            let age   = req.params.age!='null'?parseInt(req.params.age):4;
+            let age   = req.params.age!='null'?parseInt(req.params.age):15;
             let level = req.params.level!='null'?parseInt(req.params.level):1;
             let data = config.versions.find(p=> p.age.from <= age && p.age.to >= age && p.level ==level);
             //console.log(data);

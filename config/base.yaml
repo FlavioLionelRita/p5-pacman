@@ -1,7 +1,14 @@
-ghost:
-  quantity: 4
-  speed:
-    from: 1
-    to: 3 
-mouth:
-  speed: 2   
+participant:
+  '>': 
+    movement: manual
+    image: cat.png
+    speed:
+      from: 2
+      to: 2
+  'A':  
+    movement: auto
+    image: dog.png
+    speed:
+      from: 1
+      to: 3  
+
