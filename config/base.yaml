@@ -10,5 +10,28 @@ participant:
     image: dog.png
     speed:
       from: 1
-      to: 3  
-
+      to: 3
+element:
+  '#':
+    name: wall
+    shape:
+      type: image
+      image: walls.png
+      sx: 464 # the x-coordinate of the subsection of the source image to draw into the destination rectangle
+      sy: 5 # the y-coordinate of the subsection of the source image to draw into the destination rectangle
+      sWidth: 64 # the width of the subsection of the source image to draw into the destination rectangle
+      sHeight: 56 # the height of the subsection of the source image to draw into the destination rectangle 
+    alter:
+      block: 1    
+  '.':
+    name: seed
+    shape:
+      type: point
+      color: yellow
+      weight: 5
+  '*':
+    name: fruit
+    shape:
+      type: point
+      color: red
+      weight: 15 

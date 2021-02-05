@@ -1,6 +1,12 @@
-let WIDTH;
-let HIGH;
+let WIDTH= document.documentElement.clientWidth-20; 
+let HIGH = document.documentElement.clientHeight-20; 
 let game;
+let shape= {}
+let movement= {};
+
+ 
+
+
 async function setup() {  
   let queryString = window.location.search;
   let urlParams= new URLSearchParams(queryString);
@@ -12,10 +18,8 @@ async function setup() {
   const canvas = createCanvas(WIDTH, HIGH);
   canvas.parent('#canvasHolder');
   game = new Game(config);
-  game.scene['#'] =  new WallScene(game);
-  game.scene['.'] =  new Seedcene(game);
-  game.scene['*'] =  new FruitScene(game);
-  game.status = 'playing';
+  
+  
 }
 async function draw() {
     background(50);
@@ -23,46 +27,56 @@ async function draw() {
 }
 
 
-class WallScene
+shape['image'] = class ImageShape
 {
-  constructor(game){
-     this.game = game;
+  constructor(game,conf){
+    this.game = game;
+    this.conf = conf;
+    this.image = loadImage('assets/'+conf.image);
   }
   draw = function(x,y){
-    image(this.game.wallsprites, x, y, this.game.cell_width, this.game.cell_height,(64*7)+16,5,64,56);
+    image(this.image, x, y, this.game.cell_width, this.game.cell_height,this.conf.sx,this.conf.sy,this.conf.sWidth,this.conf.sHeight);
   }
 }
-class Seedcene
+shape['point'] = class PointShape
 {
-  constructor(game){
-     this.game = game;
+  constructor(game,conf){
+    this.game = game;
+    this.conf = conf;
   }
   draw = function(x,y){
-    stroke('yellow');
-    strokeWeight(5);
+    stroke(this.conf.color);
+    strokeWeight(this.conf.weight);
     point(x+(this.game.cell_width/2), y+(this.game.cell_height/2));
   }
 }
-class FruitScene
+
+class Element
 {
-  constructor(game){
-     this.game = game;
+  constructor(game,conf){
+    this.game = game;
+    this.shape =  new shape[conf.shape.type](this.game,conf.shape);
   }
-  draw = function(x,y){
-    stroke('red');
-    strokeWeight(15);
-    point(x+(this.game.cell_width/2), y+(this.game.cell_height/2));
+  draw(x,y){
+    this.shape.draw(x,y)
   }
 }
+
+
 
 
 //TODO: resolver por colisiones
+//   mapa  contiene elementos estaticos (pared, semilla y fruta)  (pared, agua, metal)
+ //  participantes   automtico o manual   
+ //  reglas en base a las coliciones  () 
 
-// < # no avanza
-// < . come semilla
-// < * come fruta cambia de estado
-// < A gameOver
-// A < gameOver 
+      // < # no avanza
+      // < . come semilla y suma puntos
+      // < * come fruta cambia de estado de los fantasmas
+      // < A gameOver
+      // A < gameOver 
+
+
 
 
 class Game
@@ -76,13 +90,18 @@ class Game
     this.cell_height = Math.floor(HIGH / this.rows);
     this.cell_width = Math.floor(WIDTH / this.cols);
     this.map = new Array(rows.length);
-    this.ghosts = []; 
-    this.scene = {};
     
+       
     
-    this.MovementControl= {};
-    this.MovementControl['manual'] = new ManualMovementControl(this,WIDTH-200,HIGH-200);
-    this.MovementControl['auto'] = new AutoMovementControl(this);
+    this.movement= {};
+    this.movement['manual'] = new movement['manual'](this);
+    this.movement['auto'] = new movement['auto'](this);
+
+    this.element = {};
+    this.element['#'] =  new Element(this,this.config.element['#']);
+    this.element['.'] =  new Element(this,this.config.element['.']);
+    this.element['*'] =  new Element(this,this.config.element['*']);
+
 
     this.participants = []
 
@@ -99,12 +118,8 @@ class Game
         }
         this.map[i][j] = character;
       }
-    }
-    
-
-    this.wallsprites = loadImage('assets/walls.png')
-
-    //596 x 992
+    }   
+    this.status = 'playing';
   }
   draw(){ 
     if(this.status =='loading'){
@@ -140,10 +155,10 @@ class Game
         let row = this.map[i];
         for(let j=0;j<this.cols;j++){
           let character = row[j];
-          if(this.scene[character]){            
+          if(this.element[character]){            
             let x = (j * this.cell_width);
             let y = (i * this.cell_height);
-            this.scene[character].draw(x,y);
+            this.element[character].draw(x,y);
           }
         }
       }
@@ -165,11 +180,13 @@ class Button {
   }
 }
 
-class ManualMovementControl
+movement['manual'] = class ManualMovement
 {
-  constructor(game,x,y){
+  constructor(game){
     let w = 64;
     let h = 64;
+    let x = WIDTH-200;
+    let y = HIGH-200;
     this.game =  game;
     this.btLeft = new Button(x,y+h,'assets/arrow-left.png');
     this.btRight = new Button(x+(w*2),y+h,'assets/arrow-right.png');
@@ -199,7 +216,7 @@ class ManualMovementControl
       next.y += _y;
     }
     // return next;
-    // let next = this.movementControl.nextPosition(this);
+    // let next = this.movement.nextPosition(this);
 
     let x = parseInt((next.x)/element.width);
     let x2 = parseInt((next.x + (element.width-7))/element.width);
@@ -219,7 +236,7 @@ class ManualMovementControl
   }
 }
 
-class AutoMovementControl
+movement['auto'] = class AutoMovement
 {
   constructor(game){
     this.game =  game;    
@@ -325,7 +342,7 @@ class Participant
 {
   constructor(game,x,y,config){  
     this.game =game;
-    this.movementControl = game.MovementControl[config.movement];      
+    this.movement = game.movement[config.movement];      
     this.width = game.cell_width;// this.image.width
     this.height = game.cell_height;
     this.x= x;
@@ -337,31 +354,7 @@ class Participant
   get posY(){return parseInt(this.y/this.height);}
 
   draw(){ 
-    this.movementControl.nextPosition(this);
+    this.movement.nextPosition(this);
     image(this.image, this.x, this.y,this.width, this.height);
   }
 }
-
-// class Mouth extends Participant
-// {
-//     constructor(game,init_x,init_y,movementControl){       
-//       super(game,init_x,init_y,'assets/cat.png',game.config.mouth.speed);
-//       this.movementControl = movementControl; 
-//     } 
-//     updatepPosition(){
-
-//       this.movementControl.nextPosition(this);
-//     }    
-// }
-
-// class Ghost extends Participant
-// {
-//   constructor(game,init_x,init_y,movementControl){     
-//     let speed = Math.floor(Math.random()*(game.config.ghost.speed.to-game.config.ghost.speed.from))+game.config.ghost.speed.from; 
-//     super(game,init_x,init_y,'assets/dog.png',speed);    
-//     this.movementControl = movementControl;   
-//   } 
-//   updatepPosition(){
-//     this.movementControl.nextPosition(this);
-//   }
-// }
